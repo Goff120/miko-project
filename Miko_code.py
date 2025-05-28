@@ -1,14 +1,15 @@
 import discord
 from discord.ext import commands
 import json
-import random
+from random import choice
 import os
 from datetime import datetime
 import openai
-import time
+from time import time
 from dotenv import load_dotenv
 import asyncio
 
+from gamble import Roulette
 
 
 #chart order
@@ -18,16 +19,6 @@ import asyncio
 #natural 1
 
 class MyClient(commands.Bot):
-
-    id_to_character = {
-        'beastlyatom' : "Theos",
-        'brainiacc.' : 'Herbert',
-        'jinjur727' : 'Otari',
-        'valcon8688' : 'Squeaker',
-        'feyniallo' : 'Kaela',
-        'octonugget' : 'GOD',
-    }
-
     name_order = (
             'Theos',
             'Herbert',
@@ -44,7 +35,7 @@ class MyClient(commands.Bot):
             "time"
         )
 
-    def __init__(self, command_prefix, intents):
+    def __init__(self, command_prefix, intents,player_ids):
         super().__init__(command_prefix=command_prefix, intents=intents)
         
         self.data_file = "miko_Tamagotchi.json"
@@ -52,13 +43,22 @@ class MyClient(commands.Bot):
         self.miko_chat_history = []
         self.extra_happy = False
         self.mood = "neutral"
+
+        self.id_to_character = {
+            player_ids[0] : "Theos",
+            player_ids[1] : 'Herbert',
+            player_ids[2] : 'Otari',
+            player_ids[3] : 'Squeaker',
+            player_ids[4] : 'Kaela',
+            player_ids[5] : 'GOD',
+    }
         
 
     async def on_ready(self):
         print(f'Hey hey hey it is your favorite bat {self.user}!!')
 
         try:
-            guild= discord.Object(id = 1362738574486929469)
+            guild= discord.Object(id = 1101519682583941121)
             synced = await self.tree.sync(guild=guild) 
             print(f'Synced {len(synced)} command(s) to guild {guild.id}.')
             #await self.tree.sync(guild=guild)
@@ -168,9 +168,9 @@ class MyClient(commands.Bot):
     def new_item(self, item):
         data = self.load_miko_data()
         items = data["items"]
-        new_list = items.pop(0)
-        new_list.append(item)
-        data["items"] = new_list
+        items.pop(0)
+        items.append(item)
+        data["items"] = items
         self.save_miko_data(data)
         self.extra_happy = True
 
@@ -238,7 +238,7 @@ class MyClient(commands.Bot):
             return
 
         # Only respond in the talk-to-miko channel
-        if message.channel.id == 1364340578661306419:  #talk channel ID
+        if message.channel.id == 1374723262117838879:  #talk channel ID
             self.miko_used()
             data = self.load_miko_data()
 
@@ -248,11 +248,11 @@ class MyClient(commands.Bot):
             else:
                 self.find_mood()
 
-            username = message.author.name
-            player = self.id_to_character.get(username, "unknown")
+            userid = message.author.id
+            player = self.id_to_character.get(userid, "unknown")
 
 
-            now = time.time()
+            now = time()
             last_time = self.last_miko_reply.get(message.author.id, 0)
             if now - last_time < 5:
                 await message.channel.send("Miko is busy... he just found a new snack in your pockets! 🍪")
@@ -277,8 +277,14 @@ class MyClient(commands.Bot):
             try:
                 await message.channel.typing()
 
+                if message.content.startswith('+'):
+                    using_mode = "gpt-4-turbo"
+                    print("turbo")
+                else:
+                    using_mode = "gpt-3.5-turbo"
+
                 response = ai_client.chat.completions.create(
-                    model="gpt-3.5-turbo",
+                    model=using_mode,
                     messages = ask,
                     max_tokens=100,
                     temperature=0.8
@@ -390,15 +396,15 @@ class ChartView(discord.ui.View):
 #------------------------- 
 
 class MikoResponses():
-    def __init__(self):
+    def __init__(self,player_id):
         self._say_hello = {
-            'beastlyatom' : "Hey Theos, doing well hunting?",
-            'brainiacc.' : 'what are you up to Herbert? :)',
-            'jinjur727' : 'pls don eat me Otari :(',
-            'valcon8688' : 'hi Squeaker, do you wana play some games?',
-            'feyniallo' : 'what up, Miko was wordering what you are making Kaela?',
-            'octonugget' : "*squeaks in fear* Miko can't handle this!",
-            'cosmosian42' : 'Miko does not know you!!!'
+            player_id[0] : "Hey Theos, doing well hunting?⚔️",
+            player_id[1] : 'what are you up to Herbert? 🥰',
+            player_id[2] : 'pls don eat me Otari 😱',
+            player_id[3] : 'hi Squeaker, do you wana play some games?🏉',
+            player_id[4] : 'what up, Miko was wordering what you are making Kaela?🧐',
+            player_id[5] : "*squeaks in fear* Miko can't handle this!😨",
+            player_id[6] : 'Miko does not know you!!! Go away! 😫',
         }
 
         #----------------
@@ -468,41 +474,98 @@ class MikoResponses():
             "He demands snacks *AND* drama."
         ]
 
+        self._help_embed = {
+            "Party stats" :
+            "Commands: `/deaths` `/kills` `/luckys` `/unluckys`\n"\
+            "Miko will show how your campaign is progressing.\n"\
+            "You can either:\n"
+            "Use the buttons to increment each player's count by 1, or\n"\
+            "Use the `/fix` command with the format type.character.num \n"\
+            "After using a `/fix` command, you’ll need to press the reload button to see the updated values.",
+        
+            "Time" :
+            "The `/time` command works similarly but displays the time for days, hours, and rests.\n"\
+            "Use `/hours` to add time based on what you input.\n"\
+            "`/fix` also works doing \ntime.hours.num, time.short_rest.num, time.long_rest.num",
+
+            "Fix":
+            "In `/fix` the num will be negative by default\n"\
+            "You can use `/fix` to increase values by inputting a negative number",
+
+            "Tamagotchi":
+            "Miko needs to be fed and talked to regularly.\n"\
+            "Using almost any command increases Miko’s happiness.\n\n"\
+            "To feed him, use `/feed_miko` and give him a snack.\n"\
+            "To check how Miko is doing, use `/status`.\n\n"\
+            "You can also give Miko up to three items using the command:\n"\
+            "/give_miko then teh item you want to give.",
+
+        
+            "Gamble":
+            "You can currently play roulette using the `/roulette` command.\n"\
+            "Place bets using the format gold.bet_type.\n"\
+            "Available types include: \nred, black, even, odd, low, high, 1st12, 2nd12,3rd12\n"\
+            "You can also bet on single or multiple numbers.\n"\
+            "For multiple numbers, use a format like 400.13_18.\n"\
+            "To see what's currently popular on the table, use `/look_see`.\n\n"\
+            "Note: The GIFs are currently not working well.\n"\
+            "Miko uses the Eurpean wheel so no 00",
+
+            
+            "Chat":
+            "You can talk to Miko directly in the #talk-to-miko channel.\n"
+            "If you start your message with a `+`, Miko will respond more intelligently.\n"\
+            "Example: +How are you today, Miko?"
+        }
+
     def status_response(self, status_level):
         if status_level >= 0.9:
-            return random.choice(self._overfull_euphoric_status)
+            return choice(self._overfull_euphoric_status)
         elif status_level >= 0.7:
-            return random.choice(self._full_excited_status)
+            return choice(self._full_excited_status)
         elif status_level >= 0.4:
-            return random.choice(self._mid_status)
+            return choice(self._mid_status)
         elif status_level >= 0.2:
-            return random.choice(self._low_mid_status)
+            return choice(self._low_mid_status)
         else:
-            return random.choice(self._low_status)
+            return choice(self._low_status)
         
     def hunger_response(self, hunger_level):
         if hunger_level < 20:
-            return random.choice(self._low_hunger)
+            return choice(self._low_hunger)
         elif hunger_level < 40:
-            return random.choice(self._low_hunger)
+            return choice(self._low_hunger)
         elif hunger_level < 70:
-            return random.choice(self._mid_hunger)
+            return choice(self._mid_hunger)
         elif hunger_level < 90:
-            return random.choice(self._full_hunger)
+            return choice(self._full_hunger)
         else:
-            return random.choice(self._rare_hunger)
+            return choice(self._rare_hunger)
+        
+    def get_help_field(self, title):
+        try:
+            field = {
+                "name": f"*{title}*",
+                "value": self._help_embed[title],
+                "inline": False
+            }
+            return field
+        except KeyError:
+            raise ValueError('That is not a valid title for help')
         
     @property
     def say_hello(self):
         return self._say_hello
 
+#idk why they need to be here but they do
+#----------------------------------------------------
 intent = discord.Intents.default()
 intent.message_content = True
-client = MyClient(command_prefix='!', intents=intent)
-miko_responses = MikoResponses()
-
-guild = discord.Object(id=1362738574486929469)
-
+load_dotenv()
+player_ids = [int(os.getenv(f"PLAYER{i}_ID")) for i in range(1, 7)]
+client = MyClient(command_prefix='!', intents=intent, player_ids=player_ids)
+guild = discord.Object(id=1101519682583941121)
+#----------------------------------------------------
 
 #---------------------------------------
 #important info the main task of the bot
@@ -587,7 +650,7 @@ async def hours_command(interaction: discord.Interaction, printer: str):
 #---------------------------------
 @client.tree.command(name="hello", description="Say hello to Miko", guild=guild)
 async def hello_command(interaction: discord.Interaction):
-    username = interaction.user.name
+    username = interaction.user.id
     response = miko_responses.say_hello.get(username, "Miko does not know you!")
     await interaction.response.send_message(response)
     client.miko_used()
@@ -628,7 +691,7 @@ async def feed_miko(interaction: discord.Interaction):
     client.miko_used()
 
 @client.tree.command(name="status", description="sometime you just have to check how your friend is doing", guild=guild)
-async def miko_command(interaction: discord.Interaction):
+async def miko_status(interaction: discord.Interaction):
     data = client.load_miko_data()
     current_fullness = client.decay_fullness(data)
     current_mood = client.decay_mood(data)
@@ -639,11 +702,9 @@ async def miko_command(interaction: discord.Interaction):
     bar2, mood_per = client.persentage(current_mood*10)
 
     full_per = full_per / 100
-    mood_per = mood_per / 10
+    mood_per = mood_per / 100
 
-    status_level = full_per * mood_per
-
-    print(f"Fullness: {current_fullness}, Mood: {current_mood}, Status Level: {status_level}")
+    status_level = (full_per + mood_per) /2
 
     item_list = data["items"]
 
@@ -656,13 +717,85 @@ async def miko_command(interaction: discord.Interaction):
         f"**Miko's Items**\n{', '.join(item_list)}\n\n"
         )
     await interaction.response.send_message(embed=embed)
+
+#-------------------
+#gambel part of Miko
+#-------------------
+
+####fix the gifssssss
+@client.tree.command(name="roulette", description="Miko thinks you should test your luck (gold.bet_type)", guild=guild)
+async def roulette_command(interaction: discord.Interaction, printer: str):
+    response = roulette.roulette_bet(printer)
+    message = response[0]
+    gif = response[1]
+    win_lose = response[2]
+    colour = response[3]
+    result = response[4]
+    gold = response[5]
+
+    if win_lose:
+        add_on = f"Miko is happy for you! \n\n\u2003🟩 {gold}"
+    else:
+        add_on = f"Miko is sad for you... \n\n\u2003🟥 {gold}"
+    
+    if gif is None:
+        await interaction.response.send_message(str(message), ephemeral=True)
+    else:
+        embed = discord.Embed(title="🪙Roulette", description="**Miko is not responsible for your gambling addiction!!**", color=0x7851A9)
+        embed.set_image(url=gif)
+        embed.add_field(name=message, value=add_on, inline=False)
+        embed.add_field(name="Your bet:", value=printer, inline=True)
+        embed.add_field(name="Result:", value=result, inline=True)
+        embed.add_field(name="Colour:", value=colour, inline=True)
+        embed.set_footer(text="finding gif that would work better is appreaticated")
+        await interaction.response.send_message(embed=embed)
+    client.miko_used()
+
+@client.tree.command(name="look_see", description="Do you want Miko to give you pure gambling stats", guild=guild)
+async def miko_look_see(interaction: discord.Interaction):
+    embed = discord.Embed(
+        title="✨Roulette Stats✨",
+        color=0x008000,
+        description= f"**Miko's love for numbers**\n\n")
+    embed.description += str(roulette)
+    await interaction.response.send_message(embed=embed)
+    client.miko_used()
+
+
     
 
-
+@client.tree.command(name="help", description="ask for help only one thing? use: Party stats, Time, Fix, Tamagotchi, Gamble, Chat", guild=guild)
+async def help_command(interaction: discord.Interaction, printer:str = None):
+    
+    embed = discord.Embed(
+        title="Miko's Help",
+        color=0xf2ce94,
+        description="**Miko is here to help you!**\n\n"
+    )
+    if printer is None:
+        embed.add_field(**miko_responses.get_help_field("Party stats"))
+        embed.add_field(**miko_responses.get_help_field("Time"))
+        embed.add_field(**miko_responses.get_help_field("Fix"))
+        embed.add_field(**miko_responses.get_help_field("Tamagotchi"))
+        embed.add_field(**miko_responses.get_help_field("Gamble"))
+        embed.add_field(**miko_responses.get_help_field("Chat"))
+    else:
+        try:
+            embed.add_field(**miko_responses.get_help_field(printer.lower().capitalize()))
+        except (IndexError) as problem:
+            await interaction.response.send_message('error:',str(problem))
+    await interaction.response.send_message(embed=embed)
 
 #add more stuff to interact with the bot here
 
-load_dotenv()
+
+
+
+player_ids += [int(os.getenv("PLAYER7_ID"))]#annoying extra non player id
+miko_responses = MikoResponses(player_ids)
+roulette = Roulette()
+
+
 api_key = os.getenv("OPENAI_API_KEY")
 ai_client = openai.OpenAI(api_key=api_key)
 
@@ -681,6 +814,14 @@ time_buttons = [
     ("Short Rest", "🔥", "Short_rest"),      
 ]
 
+
+#ping_buttons = [
+    #("Theos", "🐰", "Theos"),
+    #("Herbert", "👨🏻‍🦳", "Herbert"),
+    #("Otari", "🦁", "Otari"),
+    #("Squeaker", "🐦‍⬛", "Squeaker"),
+    #("Kaela", "🗑️", "Kaela"),
+#]
 token = os.getenv("DISCORD_TOKEN")
 client.run(token)
 
