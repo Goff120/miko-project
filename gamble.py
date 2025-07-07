@@ -1,6 +1,7 @@
 import random
 import json
 import os
+from cards import CardPack
 
 
 class Roulette():
@@ -25,7 +26,7 @@ class Roulette():
     15: {"colour": "black", "gif": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ3psdDFidzNod2Rrd3FhOTc3NzM1Y21xcXpkNXYzMmsxa3B2NG84YSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/qKgWBHKKbmAwk9n9Wr/giphy.webp"}, #❌
     16: {"colour": "red", "gif": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDhidnRqdGYzN2ZhZWYwZnlxZ29uZTFqcDVwZDdsdGdndzN6cHJuMyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/4U4hy63YFqpmgN90mg/giphy.webp"}, #❌❌
     17: {"colour": "black", "gif": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3gydWxwMmtxenNhNmU1cjlqaDEydnRoMjByZ2NlYWxiODNtOXkxbyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3oz8xMsEVYySEOVcVG/giphy.webp"}, #❌❌
-    18: {"colour": "red", "gif": "https://media4.giphy.com/media/hmxzrWrQrHKdYBZeZW/200.webp?cid=ecf05e476uqwstbhsz0idvrsvrbmsvgm4qtp1a3feqh9bsy8&ep=v1_gifs_search&rid=200.webp&ct=g"}, #❌❌
+    18: {"colour": "red", "gif": "https://media2.giphy.com/media/wSMEXWdc2EjNS/200.webp?cid=ecf05e47wd9uyi4rjuleu2xlz6yqt5zoab3th1w6baoz8qdh&ep=v1_gifs_search&rid=200.webp&ct=g"}, #❌❌
     19: {"colour": "red", "gif": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExODFuNGRjbmRkNWxvNGM1MXFmaWo1N2ozdWV6ZHdlandsazBuajczOCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/e6gldzwauUfb56NWap/giphy.webp"}, #❌
     20: {"colour": "black", "gif": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExY2dtODBtZDAydjl5cDJxdDV3bGplZHhvYm9pcDRudzd4b3dwZXhhbCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/MXdXSV2wCyv5kwXmSH/giphy.webp"}, #❌
     21: {"colour": "red", "gif": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExeDhiaTJlZHI1MXY4N3U3NTl2dW5qd2E3Z2kzb3plazkxdGZvb2tyNyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/E5j9VLw6goskDbjd3U/giphy.webp"}, #❌❌
@@ -33,7 +34,7 @@ class Roulette():
     23: {"colour": "red", "gif": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbHJ4Y3Z3NzNsdmhvMXg1Y25jdXFtdG51dWpiaW9qOXJ1YzhiczFmciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/1zKRm7xZjkhaeeZbSd/giphy.webp"}, #❌
     24: {"colour": "black", "gif": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNzZ4eWg4YWo0bHd5bzhnc3A0c29pNDUyNDRqNTJrOGhtdTg4aGpuZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/WrUaNTONeaKaLsPi0O/giphy.webp"}, #❌
     25: {"colour": "red", "gif": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExamppZW0weHdyb2o2bnA1YTN1b2F6MjVqNWd1Z2liM2JuZWg2eDE4YSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/xhKRY1FFpoC2GmzDAr/giphy.webp"}, #❌❌
-    26: {"colour": "black", "gif": "https://media4.giphy.com/media/LapzctxH4QoVx5X0wv/giphy.webp?cid=ecf05e47acgl5te7h8ozlspt58kdwb2tso3esdy9g7p3ohv1&ep=v1_gifs_search&rid=giphy.webp&ct=g"}, #❌❌
+    26: {"colour": "black", "gif": "https://media0.giphy.com/media/KeiPuaDSDNCWLPn2qO/giphy.webp?cid=ecf05e47s2nirn0nlvghfvg7uxmxvxyt03fgtryuny99hah8&ep=v1_gifs_search&rid=giphy.webp&ct=g"}, #❌❌
     27: {"colour": "red", "gif": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExb213Nmg1OTE4Mnk1cXdwdjVybnpncjFhcjJwcDc3aXY5bmF2cmpwbiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/26gJALIRlvPcw9sxq/giphy.webp"}, #❌
     28: {"colour": "black", "gif": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnEzeWd5ZmF1ankzZDg4M2Z3MHJodjJvanExajYzZnRhcXF5ZHJxZCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/5xtDarsM8jmOJtlOeTm/200.webp"}, #❌❌
     29: {"colour": "black", "gif": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnh4aWt1dDRrdjM2bDF6NDRkamphenRnYXFvNjUzZG5vcTlmdjZmMiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l0HlRPGDG8PPfdH1K/giphy.webp"}, #❌❌
@@ -155,16 +156,16 @@ class Roulette():
         try:    
             gold, bet_type = self.get_bet(bet)
         except ValueError:
-            return "Miko spins in confusion! That’s not real gold! Check the rules, silly!", None, None
+            return ["Miko spins in confusion! That’s not real gold! Check the rules, silly!"]
 
         if gold is None or bet_type is None:
-            return "Miko chirps: Format wrong! Try it like this — '100.red' or '50.17'!", None, None
+            return ["Miko chirps: Format wrong! Try it like this — '100.red' or '50.17'!"]
 
         elif gold <= 0 or gold > 500:
-            return "Miko raises an eyebrow. That gold amount is suspicious... Keep it between 1 and 500!", None, None
+            return ["Miko raises an eyebrow. That gold amount is suspicious... Keep it between 1 and 500!"]
 
         elif (bet_type not in self.possible_bets and not bet_type.isdigit() and '_' not in bet_type):
-            return "Miko spins in confusion! That’s not a real bet type! Check the rules, silly!", None, None
+            return ["Miko spins in confusion! That’s not a real bet type! Check the rules, silly!"]
         
 
 
@@ -181,11 +182,11 @@ class Roulette():
                     win = True
                     multiplier = 36 // len(split_bet)
             else:
-                return "Miko tilts his head... one of those numbers isn’t real! Use 0–36 only.", None, None, None, None
+                return ["Miko tilts his head... one of those numbers isn’t real! Use 0–36 only."]
 
         elif bet_type.isdigit():
             if not (0 <= int(bet_type) <= 36):
-                return "Miko flaps in panic! That number isn’t on the wheel! 🎲", None, None, None, None
+                return ["Miko flaps in panic! That number isn’t on the wheel! 🎲"]
             if int(bet_type) == result:
                 win = True
                 multiplier = 36
@@ -244,9 +245,140 @@ it showed up {self.result_numbers[max_result]} times!🎲👀"
         output += self.top_wins()  # assumes this returns a list of strings or formatted text
 
         return "".join(output)
+
+
+class BlackJack():
+
+    def __init__(self):
+        #make privite :)
+        self._card_pack = CardPack()
+        self._user_hand = []
+        self._miko_hand = []
+
+        self._user_total = 0
+        self._miko_total = 0
+
+        self._bet_amount = 0
+
+    @property
+    def bet_amount(self):
+        return self._bet_amount
     
-def test_class():
+    @property
+    def miko_total(self):
+        return self._miko_total
+    
+    @property
+    def user_total(self):
+        return self._user_total
+    
+    @property
+    def miko_hand(self):
+        return self._miko_hand
+    
+    @property 
+    def user_hand(self):
+        return self._user_hand
+    
+    @property
+    def card_pack(self):
+        return self._card_pack
+    
+    @bet_amount.setter
+    def bet_amount(self,bet):
+        if 1 <= bet <= 500:
+            self._bet_amount = bet
+        else:
+            raise ValueError ("Bet must be between 1 and 500.") 
+
+    def new_game(self,bet):
+        self.bet_amount = bet
+
+        self.check_card_amount() 
+        self.new_hands()
+
+    def hit(self):
+        self._user_hand += self.card_pack.deal(1)
+
+    def stand(self):
+        self.miko_play()
+
+    def double(self):
+        self.bet_amount = self.bet_amount * 2
+        self.hit()
+
+    def miko_play(self):
+        self._miko_hand += self.card_pack.deal(1)  # Reveal second card
+        while self.calculate_total(self.miko_hand) < 17:
+            self._miko_hand += self.card_pack.deal(1)
+            
+    def check_winner(self):
+        user_total = self.calculate_total(self.user_hand)
+        miko_total = self.calculate_total(self.miko_hand)
+
+        if user_total > 21:
+            return "Oh no... you went bust! Miko is sad for you... 🥺", "🟥"
+        elif miko_total > 21:
+            return "Hehe~ Miko made a mistake! You win this time! 🎉", "🟩"
+        elif user_total > miko_total:
+            return "Yatta~! You beat Miko fair and square! 💪", "🟩"
+        elif user_total < miko_total:
+            return "Miko wins this round~ Maybe next time💅", "🟥"
+        else:
+            return "It’s a push~! Miko calls it a draw~ 🤝", "⬜"
+    
+    def new_hands (self):
+        self._miko_hand = []
+
+        self._user_hand = self.card_pack.deal(2)
+        self._miko_hand = self.card_pack.deal()
+
+    def get_new_card(self, hand):
+        new_card = self.card_pack.deal()
+        hand.extend(new_card)
+        return hand
+
+
+    #the game will use the same amount of card till a fresh hold
+    def check_card_amount(self):
+        if len(self.card_pack.deck) < 60:
+            self.card_pack.new_pack(2)
+
+    
+    def calculate_total(self, hand):
+        total = 0
+        ace = 0
+        for x in hand:
+            value = x[:-1]
+            if value.isnumeric():  #number cards
+                total += int(value)
+
+            elif value in ["K", "Q", "J"]: #face cards
+                total += 10
+
+            elif value == "A": #ace cards
+                ace += 1
+                total += 11
+
+        # Adjust for aces if total > 21
+        while total > 21 and ace > 0:
+            total -= 10
+            ace -= 1
+        return total
+    
+    def info(self):
+        output = []
+        output.append(self.user_hand)
+        output.append(self.calculate_total(self.user_hand))
+        output.append(self.miko_hand)
+        output.append(self.calculate_total(self.miko_hand))
+         
+        return output     
+
+
+def test_Roulette():
     roulette = Roulette()
+    print(roulette.roulette_bet("100"))
     print(roulette.roulette_bet("100.red"))
     print(roulette.roulette_bet("100.black"))
     print(roulette.roulette_bet("100.1st12"))
@@ -257,12 +389,62 @@ def test_class():
     print(roulette.roulette_bet("100.low"))
     print(roulette.roulette_bet("100.high"))
     print(roulette.roulette_bet("100.0"))
-    print(roulette.roulette_bet("100.6"))
-    print(roulette.roulette_bet("100.5"))
-    print(roulette.roulette_bet("100.12"))
     print(roulette.roulette_bet("100.18_12"))
-    print(roulette.roulette_bet("100.0_1_2_3_4_5_6_7_8_9_10_11_12"))
+    print(roulette.roulette_bet("100.0_1_2_7_8_11_12"))
     print(roulette)
 
+
+
+
+def play_blackjack():
+    game = BlackJack()
+    print("🎴 Welcome to Terminal Blackjack vs Miko 🎴")
+
+    bet = int(input("enter bet 0-500 :"))
+    try:
+        game.new_game(bet)
+    except ValueError as problem:
+        print('error:', str(problem))
+        return  # Stop the rest of the code if there's an error
+
+    info = game.info()
+    print(info)
+
+    # Player loop
+    while True:
+        move = input("\nDo you want to [h]it, [s]tand or [q]uit? ").lower()
+
+        if move == "h":
+            game.hit()
+            # Show user and dealer hands after hit
+            info = game.info()
+            print(f"Your hand: {info[0]} (Total: {info[1]})")
+            print(f"Miko's hand: {info[2]} (Total: {info[3]})")
+
+            if game.calculate_total(game.user_hand) > 21:
+                print("You busted!")
+                break
+
+        elif move == "s":
+            game.stand()
+            info = game.info()
+            print(f"Your hand: {info[0]} (Total: {info[1]})")
+            print(f"Miko's hand: {info[2]} (Total: {info[3]})")
+            break
+
+        elif move == "q":
+            print("Game exited.")
+            return
+
+        else:
+            print("Invalid move. Type 'h' to hit, 's' to stand, or 'q' to quit.")
+
+    # Endgame
+    result, balance = game.check_winner()
+    print(f"\n🎲 {result} (Winnings: {balance})")
+
+
+
 if __name__ == "__main__":
-    test_class()
+    #test_Roulette()
+    play_blackjack()

@@ -1,16 +1,14 @@
 import discord
 from discord.ext import commands
 import json
-from random import choice
 import os
 from datetime import datetime
 import openai
 from time import time
 from dotenv import load_dotenv
-import asyncio
 
-from gamble import Roulette
 
+from miko_speak import  MikoResponses
 
 #chart order
 #deaths
@@ -19,6 +17,7 @@ from gamble import Roulette
 #natural 1
 
 class MyClient(commands.Bot):
+
     name_order = (
             'Theos',
             'Herbert',
@@ -26,47 +25,48 @@ class MyClient(commands.Bot):
             'Squeaker',
             'Kaela'
         )
-    
-    types = (
-            "deaths",
-            "kills",
-            "luckys",
-            "unluckys",
-            "time"
-        )
 
-    def __init__(self, command_prefix, intents,player_ids):
+    def __init__(self, command_prefix, intents, player_ids):
         super().__init__(command_prefix=command_prefix, intents=intents)
-        
+        self.absolute_admin = player_ids[0]
+        self.miko_responses = MikoResponses(player_ids)
+
         self.data_file = "miko_Tamagotchi.json"
         self.last_miko_reply = {}
         self.miko_chat_history = []
         self.extra_happy = False
         self.mood = "neutral"
-
         self.id_to_character = {
-            player_ids[0] : "Theos",
-            player_ids[1] : 'Herbert',
-            player_ids[2] : 'Otari',
-            player_ids[3] : 'Squeaker',
-            player_ids[4] : 'Kaela',
-            player_ids[5] : 'GOD',
-    }
-        
+            player_ids[0]: "Theos",
+            player_ids[1]: "Herbert",
+            player_ids[2]: "Otari",
+            player_ids[3]: "Squeaker",
+            player_ids[4]: "Kaela", 
+            player_ids[5]: "GOD",
+        }
+        self.type = ["deaths","kills","luckys","unluckys","time"]
 
-    async def on_ready(self):
-        print(f'Hey hey hey it is your favorite bat {self.user}!!')
-
+    async def setup_hook(self):
         try:
-            guild= discord.Object(id = 1101519682583941121)
-            synced = await self.tree.sync(guild=guild) 
-            print(f'Synced {len(synced)} command(s) to guild {guild.id}.')
-            #await self.tree.sync(guild=guild)
-            #await self.tree.clear_commands(guild=guild)
-            #await self.tree.sync(guild=guild)
+            guild = discord.Object(id=1362738574486929469)
+            self.tree.clear_commands(guild=guild)
+            
+            await self.load_extension("silly")
+            await self.load_extension("gambing_commands")
+            await self.load_extension("character_stats") 
+            await self.load_extension("admin")
+
+            synced = await self.tree.sync(guild=guild)
+
+            print(f"✅ Synced {len(synced)} command(s) to guild {guild.id}")
+            for cmd in synced:
+                print(f" - /{cmd.name}")
 
         except Exception as e:
-            print(f'Error syncing commands: {e}')
+            print(f"error syncing commands: {e}")
+
+    async def on_ready(self):
+        print(f"Hey hey hey it is your favorite bat {self.user}!!")
 
     def selection(self, title, stat_group):
         if title in ["deaths", "kills", "luckys", "unluckys"]:
@@ -82,19 +82,22 @@ class MyClient(commands.Bot):
 
     def output_stats(self, title):
         data = self.load_miko_data()
-        stat_group = data[title] #example gets 0,0,0,0,0
+        stat_group = data[title]
         result = []
 
+        selection_result = self.selection(title, stat_group)
+        if selection_result is None:
+            return ["No data available for this stat."]
+        name_object, stat_group = selection_result
 
-        name_object, stat_group= self.selection(title,stat_group)   
-
-        for x in range (0, len(name_object)):
+        for x in range(0, len(name_object)):
             output = f'{name_object[x]}: {stat_group[x]}'
             result.append(output)
         return result
 
     def load_miko_data(self):
         if not os.path.exists(self.data_file):
+            print("finding file was to hard 😓")
             return {
                 "fullness": 0,
                 "last_fed": datetime.utcnow().isoformat(),
@@ -115,11 +118,52 @@ class MyClient(commands.Bot):
                 "time": [0,0,0]
                 }
         with open(self.data_file, "r") as f:
-            return json.load(f)
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                print("redoing homework with JSON 🙄")
+                os.rename(self.data_file, f"{self.data_file}.bak")
+                return self.load_miko_data()
 
     def save_miko_data(self, data):
-        with open(self.data_file, "w") as f:
+        with open("miko_Tamagotchi.json", "w") as f:
             json.dump(data, f, indent=4)
+            f.flush()
+            os.fsync(f.fileno())
+
+    def load_tables(self,table_path):
+        try:
+            with open(table_path, "r") as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            print(f"🙄 JSON broken in {table_path} — backing up and resetting.")
+            os.rename(table_path, f"{table_path}.bak")
+            return {}  
+        except FileNotFoundError:
+            print(f"⚠️ File {table_path} not found — creating new.")
+            return {}
+
+    def save_all(self):
+        print("💾 Saving all tracked data...")
+
+        try:
+            miko_data = self.load_miko_data()
+            self.save_miko_data(miko_data)
+            print("✅ Miko data saved.")
+
+        except Exception as e:
+            print(f"❌ Error saving Miko data: {e}")
+
+        try:
+            roulette = self.load_tables("roulette_table.json")
+            with open("roulette_table.json", "w") as f:
+                json.dump(roulette, f, indent=4)
+                f.flush()
+                os.fsync(f.fileno())
+            print("✅ roulette_table data saved.")
+
+        except Exception as e:
+            print(f"❌ Error saving roulette_table data: {e}")
 
     def decay_fullness(self, data):
         last_fed_time = datetime.fromisoformat(data["last_fed"])
@@ -142,8 +186,8 @@ class MyClient(commands.Bot):
         return self.mood_points
     
     def miko_used(self):
-        data = client.load_miko_data()
-        _ = client.decay_mood(data) #exaple gets 5
+        data = self.load_miko_data()
+        _ = self.decay_mood(data) #exaple gets 5
         current_mood = max(0, min(10, self.mood_points + 1)) #example gets 6
 
         # Save updated data
@@ -214,7 +258,7 @@ class MyClient(commands.Bot):
         ]
         colors = [0xffffff, 0xca3631, 0xFFD700, 0x665a2c,0xE89EB8]
 
-        stats = self.output_stats(self.types[row])
+        stats = self.output_stats(self.type[row])
         embed = discord.Embed(title=titles[row], description=descriptions[row], color=colors[row])
         
         for stat in stats:
@@ -234,7 +278,7 @@ class MyClient(commands.Bot):
 
     async def on_message(self,message: str): 
         #no chat chat to self
-        if message.author == client.user:
+        if message.author == self.user:
             return
 
         # Only respond in the talk-to-miko channel
@@ -304,524 +348,21 @@ class MyClient(commands.Bot):
 
         await self.process_commands(message)
 
-#-----------------------
-# buttons for the charts
-#-----------------------  
-  
-class ChartView(discord.ui.View):
-    def __init__(self, row_to_update: int, button_set: list[tuple], client_ref: MyClient, mode="chart", message: discord.Message = None):
-        super().__init__(timeout=None)
-        self.row = row_to_update
-        self.client = client_ref
-        self.message = message
-        self.mode = mode  
-        self.button_set = button_set
 
-        for label, emoji, action in button_set:
-            self.add_item(self.make_button(label, emoji, action))
 
-        self.add_item(self.make_reload_button())
 
-    def make_button(self, label, emoji, target):
-        button = discord.ui.Button(
-            label=label,
-            style=discord.ButtonStyle.blurple,
-            emoji=emoji
-        )
-
-        async def button_callback(interaction: discord.Interaction):
-            if self.mode == "chart":
-                self.client.change_chart(self.client.types[self.row], target)
-            elif self.mode == "time":
-                self.client.change_chart("time", target)
-            
-            await self.update_message(interaction)
-            await interaction.response.defer()
-
-        button.callback = button_callback
-        return button
-
-    async def update_message(self, interaction: discord.Interaction):
-        embed = self.client.generate_embed(self.row)
-        await interaction.message.edit(embed=embed, view=self)
-    
-    def make_button(self, label, emoji, target):
-        button = discord.ui.Button(
-            label=label,
-            style=discord.ButtonStyle.blurple,
-            emoji=emoji
-        )
-
-        async def button_callback(interaction: discord.Interaction):
-            if self.mode == "chart":
-                self.client.change_chart(self.client.types[self.row], target)
-            elif self.mode == "time":
-                self.client.change_chart("time", target)
-            
-            await self.update_message(interaction)
-            await interaction.response.defer()
-
-        button.callback = button_callback
-        return button
-
-    def make_reload_button(self):
-        button = discord.ui.Button(
-            label="Reload",
-            style=discord.ButtonStyle.red,
-            emoji="🔄"
-        )
-
-        async def reload_callback(interaction: discord.Interaction):
-            await interaction.response.defer(thinking=True)
-
-            try:
-                message = interaction.message
-                new_embed = self.client.generate_embed(self.row)  
-                await message.edit(embed=new_embed)
-                msg = await interaction.followup.send("Miko refreshed the stats! 📊✨", ephemeral=True, wait=True)
-                await asyncio.sleep(5)
-                await msg.delete()
-
-            except Exception as e:
-                msg = await interaction.followup.send("Miko choked while reloading... 😵 Error: {e}", ephemeral=True, wait=True)
-                await asyncio.sleep(5)
-                await msg.delete()
-
-                
-        button.callback = reload_callback
-        return button
-    
-#-------------------------
-#responses for Miko to say   
-#------------------------- 
-
-class MikoResponses():
-    def __init__(self,player_id):
-        self._say_hello = {
-            player_id[0] : "Hey Theos, doing well hunting?⚔️",
-            player_id[1] : 'what are you up to Herbert? 🥰',
-            player_id[2] : 'pls don eat me Otari 😱',
-            player_id[3] : 'hi Squeaker, do you wana play some games?🏉',
-            player_id[4] : 'what up, Miko was wordering what you are making Kaela?🧐',
-            player_id[5] : "*squeaks in fear* Miko can't handle this!😨",
-            player_id[6] : 'Miko does not know you!!! Go away! 😫',
-        }
-
-        #----------------
-        #status responses
-        #----------------
-
-        self._low_status = [
-            "Miko is a hollow husk... abandoned... 😭",
-            "*pathetic squeak*... Miko fears the end is near.",
-            "He wraps himself in his wings and sighs dramatically.",
-            "Miko gnaws on a table leg. It's come to this."
-        ]
-
-        self._low_mid_status = [
-            "Miko tilts his head hopefully. Any scraps... maybe?",
-            "*tiny hopeful squeak*... you wouldn't forget Miko, right?",
-            "He pokes your bag looking for snacks.",
-            "Miko hovers, trying not to look desperate (failing)."
-        ]
-
-        self._mid_status = [
-            "Miko squeaks happily, belly full and heart lighter!",
-            "He twirls in the air like a fluffy bat-top. 🎶",
-            "Miko pats his tummy contentedly and winks.",
-            "He lounges dramatically, satisfied beyond reason."
-        ]
-
-        self._full_excited_status = [
-            "Miko zooms in circles, squeaking joyfully!",
-            "He chirps at random passersby, showing off his fullness.",
-            "Miko does a midair somersault. Because he can.",
-            "He hurls tiny crumbs at you in triumph. 🦇✨"
-        ]
-
-        self._overfull_euphoric_status = [
-            "Miko is vibrating with bliss. Nothing can touch him now.",
-            "He lies on his back, wings spread, whispering about destiny.",
-            "Miko believes he could defeat a dragon. Or take a nap. Either one.",
-            "He giggles uncontrollably between tiny hiccups."
-        ]
-
-        #----------------
-        #hunger responses
-        #----------------
-
-        self._low_hunger = [
-            "Miko looks starved... 🥺",
-            "*weak squeak*... you remembered me...",
-            "He clings to your leg like you’re his last hope."
-        ]
-
-        self._mid_hunger = [
-            "Miko accepts your offering with a happy squeak.",
-            "*nom nom nom* 🦇",
-            "He chirps gratefully and curls up nearby."
-        ]
-
-        self._full_hunger = [
-            "He nibbles politely. He’s already pretty stuffed.",
-            "He blinks slowly. Not hungry... but okay.",
-            "Miko eats it anyway. He's a little piggy today."
-        ]
-
-        self._rare_hunger = [
-            "Miko refuses. He's in his mysterious phase.",
-            "He flips the food over. Rude but elegant.",
-            "He demands snacks *AND* drama."
-        ]
-
-        self._help_embed = {
-            "Party stats" :
-            "Commands: `/deaths` `/kills` `/luckys` `/unluckys`\n"\
-            "Miko will show how your campaign is progressing.\n"\
-            "You can either:\n"
-            "Use the buttons to increment each player's count by 1, or\n"\
-            "Use the `/fix` command with the format type.character.num \n"\
-            "After using a `/fix` command, you’ll need to press the reload button to see the updated values.",
-        
-            "Time" :
-            "The `/time` command works similarly but displays the time for days, hours, and rests.\n"\
-            "Use `/hours` to add time based on what you input.\n"\
-            "`/fix` also works doing \ntime.hours.num, time.short_rest.num, time.long_rest.num",
-
-            "Fix":
-            "In `/fix` the num will be negative by default\n"\
-            "You can use `/fix` to increase values by inputting a negative number",
-
-            "Tamagotchi":
-            "Miko needs to be fed and talked to regularly.\n"\
-            "Using almost any command increases Miko’s happiness.\n\n"\
-            "To feed him, use `/feed_miko` and give him a snack.\n"\
-            "To check how Miko is doing, use `/status`.\n\n"\
-            "You can also give Miko up to three items using the command:\n"\
-            "/give_miko then teh item you want to give.",
-
-        
-            "Gamble":
-            "You can currently play roulette using the `/roulette` command.\n"\
-            "Place bets using the format gold.bet_type.\n"\
-            "Available types include: \nred, black, even, odd, low, high, 1st12, 2nd12,3rd12\n"\
-            "You can also bet on single or multiple numbers.\n"\
-            "For multiple numbers, use a format like 400.13_18.\n"\
-            "To see what's currently popular on the table, use `/look_see`.\n\n"\
-            "Note: The GIFs are currently not working well.\n"\
-            "Miko uses the Eurpean wheel so no 00",
-
-            
-            "Chat":
-            "You can talk to Miko directly in the #talk-to-miko channel.\n"
-            "If you start your message with a `+`, Miko will respond more intelligently.\n"\
-            "Example: +How are you today, Miko?"
-        }
-
-    def status_response(self, status_level):
-        if status_level >= 0.9:
-            return choice(self._overfull_euphoric_status)
-        elif status_level >= 0.7:
-            return choice(self._full_excited_status)
-        elif status_level >= 0.4:
-            return choice(self._mid_status)
-        elif status_level >= 0.2:
-            return choice(self._low_mid_status)
-        else:
-            return choice(self._low_status)
-        
-    def hunger_response(self, hunger_level):
-        if hunger_level < 20:
-            return choice(self._low_hunger)
-        elif hunger_level < 40:
-            return choice(self._low_hunger)
-        elif hunger_level < 70:
-            return choice(self._mid_hunger)
-        elif hunger_level < 90:
-            return choice(self._full_hunger)
-        else:
-            return choice(self._rare_hunger)
-        
-    def get_help_field(self, title):
-        try:
-            field = {
-                "name": f"*{title}*",
-                "value": self._help_embed[title],
-                "inline": False
-            }
-            return field
-        except KeyError:
-            raise ValueError('That is not a valid title for help')
-        
-    @property
-    def say_hello(self):
-        return self._say_hello
-
-#idk why they need to be here but they do
-#----------------------------------------------------
 intent = discord.Intents.default()
 intent.message_content = True
+
 load_dotenv()
-player_ids = [int(os.getenv(f"PLAYER{i}_ID")) for i in range(1, 7)]
+player_ids = [int(os.getenv(f"PLAYER{i}_ID")) for i in range(1, 8)]
+
 client = MyClient(command_prefix='!', intents=intent, player_ids=player_ids)
-guild = discord.Object(id=1101519682583941121)
-#----------------------------------------------------
-
-#---------------------------------------
-#important info the main task of the bot
-#---------------------------------------
-@client.tree.command(name="deaths", description="Miko can tell your deaths", guild=guild)
-async def deaths_command(interaction: discord.Interaction):
-    embed = client.generate_embed(0)
-    await interaction.response.send_message(embed=embed, view=ChartView(0, player_buttons, client, mode="chart"))
-
-@client.tree.command(name="kills", description="Die die die", guild=guild)
-async def kills_command(interaction: discord.Interaction):
-    embed = client.generate_embed(1)
-    await interaction.response.send_message(embed=embed, view=ChartView(1, player_buttons, client, mode="chart"))
-    client.miko_used()
-
-@client.tree.command(name="luckys", description="Now how lucky have you all been", guild=guild)
-async def luckys_command(interaction: discord.Interaction):
-    embed = client.generate_embed(2)
-    await interaction.response.send_message(embed=embed, view=ChartView(2, player_buttons, client, mode="chart"))
-    client.miko_used()
-
-@client.tree.command(name="unluckys", description="Aww man it is just not ya day now", guild=guild)
-async def unluckys_command(interaction: discord.Interaction):
-    embed = client.generate_embed(3)
-    await interaction.response.send_message(embed=embed, view=ChartView(3, player_buttons, client, mode="chart"))
-    client.miko_used()
-
-@client.tree.command(name="time", description="Sometime the party needs sometime", guild=guild)
-async def time_command(interaction: discord.Interaction):
-    embed = client.generate_embed(4)
-    await interaction.response.send_message(embed=embed, view=ChartView(4, time_buttons, client, mode="time"))
-    client.miko_used()
-
-@client.tree.command(name="fix", description="Fix data using type.character.num", guild=guild)
-async def fix_command(interaction: discord.Interaction, printer: str):
-
-    selction = printer.split(".")
-    
-    type = selction[0].lower()
-    character = selction[1].lower().capitalize()
-    num = -int(selction[2])
-
-    try:
-        await interaction.response.defer(ephemeral=True)
-        client.change_chart(type, character, num=num)
-        message = await interaction.original_response()
-
-        row = client.types.index(type)
-        embed = client.generate_embed(row)
-         
-        for field in embed.fields:
-            if field.name.startswith(character):
-                old_value = int(field.name.split(":")[1].strip())
-                new_value = old_value + num
-                field.name = f"{character}: {new_value}"
-                break
-
-        await message.edit(embed=embed)
-        await interaction.followup.send("Miko has updated the chart! 🛠️", ephemeral=True)
-
-    except Exception as e:
-        await interaction.response.send_message(
-            f"Miko tilts his head... error happened! 😖 {e}",
-            ephemeral=True
-        )
-
-@client.tree.command(name="hours", description="when time flys", guild=guild)
-async def hours_command(interaction: discord.Interaction, printer: str):
-    
-    try:
-        num = int(printer)
-        client.change_chart("time", "Hours", num=num)
-        await interaction.response.send_message(f"Miko has added {num} hours!", ephemeral=True)
-    except ValueError:
-        await interaction.response.send_message("Miko tilts his head... error happened! 😖", ephemeral=True)
-
-
-
-
-#---------------------------------
-#extra silly things for Miko to do
-#---------------------------------
-@client.tree.command(name="hello", description="Say hello to Miko", guild=guild)
-async def hello_command(interaction: discord.Interaction):
-    username = interaction.user.id
-    response = miko_responses.say_hello.get(username, "Miko does not know you!")
-    await interaction.response.send_message(response)
-    client.miko_used()
-
-@client.tree.command(name="give_miko", description="Give Miko an Item", guild=guild)
-async def give_miko(interaction: discord.Interaction, printer:str):
-    await interaction.response.send_message(f"Miko received a {printer}!")
-    sent = await interaction.original_response()
-    await sent.add_reaction("🥰")
-    client.new_item(printer)
-    client.miko_used()
-
-@client.tree.command(name="feed_miko", description="This guy gets hungry too", guild=guild)
-async def feed_miko(interaction: discord.Interaction):
-
-    data = client.load_miko_data()
-    current_fullness = client.decay_fullness(data) #exaple gets 53
-    current_fullness = min(100, current_fullness + 25) #example gets 78
-
-    bar, percent = client.persentage(current_fullness)
-    #how much is Miko's hunger
-
-    # Save updated data
-    data["fullness"] = current_fullness
-    data["last_fed"] = datetime.utcnow().isoformat()
-    client.save_miko_data(data)
-
-    # Pick response flavor
-    flavor = miko_responses.hunger_response(current_fullness)
-    
-
-    # Combine bar and flavor into one message
-    message_text = f"**Miko's Fullness**\n{bar} {percent}%\n\n{flavor}"
-    await interaction.response.send_message(message_text)
-
-    sent = await interaction.original_response()
-    await sent.add_reaction("🥰")
-    client.miko_used()
-
-@client.tree.command(name="status", description="sometime you just have to check how your friend is doing", guild=guild)
-async def miko_status(interaction: discord.Interaction):
-    data = client.load_miko_data()
-    current_fullness = client.decay_fullness(data)
-    current_mood = client.decay_mood(data)
-    print(current_mood)
-
-    #use the blank part div by 100 and time them, toghere to get better status
-    bar, full_per = client.persentage(current_fullness)
-    bar2, mood_per = client.persentage(current_mood*10)
-
-    full_per = full_per / 100
-    mood_per = mood_per / 100
-
-    status_level = (full_per + mood_per) /2
-
-    item_list = data["items"]
-
-    embed = discord.Embed(
-        title="Miko's Status",
-        color=0x5D3FD3,
-        description= f'{miko_responses.status_response(status_level)}\n\n'
-        f"**Miko's Fullness**\n{bar} {current_fullness}%\n\n"
-        f"**Miko's Mood**\n{bar2} {current_mood*10}%\n\n"
-        f"**Miko's Items**\n{', '.join(item_list)}\n\n"
-        )
-    await interaction.response.send_message(embed=embed)
-
-#-------------------
-#gambel part of Miko
-#-------------------
-
-####fix the gifssssss
-@client.tree.command(name="roulette", description="Miko thinks you should test your luck (gold.bet_type)", guild=guild)
-async def roulette_command(interaction: discord.Interaction, printer: str):
-    response = roulette.roulette_bet(printer)
-    message = response[0]
-    gif = response[1]
-    win_lose = response[2]
-    colour = response[3]
-    result = response[4]
-    gold = response[5]
-
-    if win_lose:
-        add_on = f"Miko is happy for you! \n\n\u2003🟩 {gold}"
-    else:
-        add_on = f"Miko is sad for you... \n\n\u2003🟥 {gold}"
-    
-    if gif is None:
-        await interaction.response.send_message(str(message), ephemeral=True)
-    else:
-        embed = discord.Embed(title="🪙Roulette", description="**Miko is not responsible for your gambling addiction!!**", color=0x7851A9)
-        embed.set_image(url=gif)
-        embed.add_field(name=message, value=add_on, inline=False)
-        embed.add_field(name="Your bet:", value=printer, inline=True)
-        embed.add_field(name="Result:", value=result, inline=True)
-        embed.add_field(name="Colour:", value=colour, inline=True)
-        embed.set_footer(text="finding gif that would work better is appreaticated")
-        await interaction.response.send_message(embed=embed)
-    client.miko_used()
-
-@client.tree.command(name="look_see", description="Do you want Miko to give you pure gambling stats", guild=guild)
-async def miko_look_see(interaction: discord.Interaction):
-    embed = discord.Embed(
-        title="✨Roulette Stats✨",
-        color=0x008000,
-        description= f"**Miko's love for numbers**\n\n")
-    embed.description += str(roulette)
-    await interaction.response.send_message(embed=embed)
-    client.miko_used()
-
-
-    
-
-@client.tree.command(name="help", description="ask for help only one thing? use: Party stats, Time, Fix, Tamagotchi, Gamble, Chat", guild=guild)
-async def help_command(interaction: discord.Interaction, printer:str = None):
-    
-    embed = discord.Embed(
-        title="Miko's Help",
-        color=0xf2ce94,
-        description="**Miko is here to help you!**\n\n"
-    )
-    if printer is None:
-        embed.add_field(**miko_responses.get_help_field("Party stats"))
-        embed.add_field(**miko_responses.get_help_field("Time"))
-        embed.add_field(**miko_responses.get_help_field("Fix"))
-        embed.add_field(**miko_responses.get_help_field("Tamagotchi"))
-        embed.add_field(**miko_responses.get_help_field("Gamble"))
-        embed.add_field(**miko_responses.get_help_field("Chat"))
-    else:
-        try:
-            embed.add_field(**miko_responses.get_help_field(printer.lower().capitalize()))
-        except (IndexError) as problem:
-            await interaction.response.send_message('error:',str(problem))
-    await interaction.response.send_message(embed=embed)
-
-#add more stuff to interact with the bot here
-
-
-
-
-player_ids += [int(os.getenv("PLAYER7_ID"))]#annoying extra non player id
-miko_responses = MikoResponses(player_ids)
-roulette = Roulette()
-
+guild = discord.Object(id=1362738574486929469)
 
 api_key = os.getenv("OPENAI_API_KEY")
 ai_client = openai.OpenAI(api_key=api_key)
 
-player_buttons = [
-    ("Theos", "🐰", "Theos"),
-    ("Herbert", "👨🏻‍🦳", "Herbert"),
-    ("Otari", "🦁", "Otari"),
-    ("Squeaker", "🐦‍⬛", "Squeaker"),
-    ("Kaela", "🗑️", "Kaela"),
-]
-
-time_buttons = [
-    ("Add Day", "🌞", "Days"),        
-    ("Add Hour", "⏰", "Hours"),        
-    ("Long Rest", "🛌", "Long_rest"),       
-    ("Short Rest", "🔥", "Short_rest"),      
-]
-
-
-#ping_buttons = [
-    #("Theos", "🐰", "Theos"),
-    #("Herbert", "👨🏻‍🦳", "Herbert"),
-    #("Otari", "🦁", "Otari"),
-    #("Squeaker", "🐦‍⬛", "Squeaker"),
-    #("Kaela", "🗑️", "Kaela"),
-#]
 token = os.getenv("DISCORD_TOKEN")
 client.run(token)
 
