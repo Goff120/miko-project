@@ -1,8 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands, Interaction
-import json
-import os
+
 
 from guild_id import TARGET_GUILD, TARGET_CHANNEL
 
@@ -59,7 +58,9 @@ class AdminCog(commands.Cog):
             embed.add_field(**self.bot.miko_responses.get_help_field("Time"))
             embed.add_field(**self.bot.miko_responses.get_help_field("Fix"))
             embed.add_field(**self.bot.miko_responses.get_help_field("Tamagotchi"))
-            embed.add_field(**self.bot.miko_responses.get_help_field("Gamble"))
+            embed.add_field(**self.bot.miko_responses.get_help_field("Roulette"))
+            embed.add_field(**self.bot.miko_responses.get_help_field("Blackjack"))
+            embed.add_field(**self.bot.miko_responses.get_help_field("Gambling"))
             embed.add_field(**self.bot.miko_responses.get_help_field("Chat"))
         else:
             try:
@@ -81,18 +82,17 @@ class AdminCog(commands.Cog):
                 if channel and isinstance(channel, discord.TextChannel):
                     def not_pinned(msg):
                         return not msg.pinned
-                    await channel.purge(limit=None, check=not_pinned)
+                    
+                    await interaction.followup.send("Miko shutdown done, see you later all")
+                    await channel.purge(limit=1000, check=not_pinned)
                     print("🧹 Channel messages cleared.")
             except Exception as e:
                 print(f"❌ Error clearing channel: {e}")
 
-
-            await interaction.followup.send("Miko shutdown done, see you later all")
             await self.bot.close()
-
-            
+ 
         else:
-            await interaction.followup.send("Oi you have no right 😠")
+            await interaction.response.send_message("Oi you have no right 😠")
 
 
 async def setup(bot):

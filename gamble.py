@@ -46,17 +46,17 @@ class Roulette():
     35: {"colour": "black", "gif": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGRybTZiYjd6cm95cXllcHF2NXUydnBoaGtybjhhem95Zm1uZ3liOCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/q1ol7pCEdr9WgVHH68/giphy.webp"}, #❌❌
     36: {"colour": "red", "gif": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmduZmVlZXQ1NGQ0NW9yODJ3endpeXJobTNvenV2cDA5d3p2czdldyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/719pIPPBuXD3Id0fQM/giphy.webp"} #❌❌
 }
-    
+    #possible input : multipy bet by if win
     possible_bets = {
-        "red": 2,
-        "black": 2,
-        "low": 2,
-        "high": 2,
-        "even": 2,
-        "odd": 2,
-        "1st12": 3,
-        "2nd12": 3,
-        "3rd12": 3
+        "red": 1,
+        "black": 1,
+        "low": 1,
+        "high": 1,
+        "even": 1,
+        "odd": 1,
+        "1st12": 2,
+        "2nd12": 2,
+        "3rd12": 2
     }
 
     def __init__(self, data_file="roulette_table.json"):
@@ -189,7 +189,7 @@ class Roulette():
                 return ["Miko flaps in panic! That number isn’t on the wheel! 🎲"]
             if int(bet_type) == result:
                 win = True
-                multiplier = 36
+                multiplier = 35
 
         else:
             if bet_type == colour:
@@ -259,6 +259,7 @@ class BlackJack():
         self._miko_total = 0
 
         self._bet_amount = 0
+        self._been_doubled = False
 
     @property
     def bet_amount(self):
@@ -284,6 +285,10 @@ class BlackJack():
     def card_pack(self):
         return self._card_pack
     
+    @property
+    def been_doubled(self):
+        return self._been_doubled
+    
     @bet_amount.setter
     def bet_amount(self,bet):
         if 1 <= bet <= 500:
@@ -304,13 +309,19 @@ class BlackJack():
         self.miko_play()
 
     def double(self):
-        self.bet_amount = self.bet_amount * 2
-        self.hit()
+        #force past 500 this one possible time 
+        self._bet_amount *= 2
+        self._user_hand += self.card_pack.deal(1)
+        self._been_doubled = True
+
+    def back_from_double(self):
+        self._bet_amount //=2
+        self._been_doubled = False
 
     def miko_play(self):
         self._miko_hand += self.card_pack.deal(1)  # Reveal second card
-        while self.calculate_total(self.miko_hand) < 17:
-            self._miko_hand += self.card_pack.deal(1)
+        while self.calculate_total(self.miko_hand) < 17: #when dealer stops at total 17
+            self._miko_hand += self.card_pack.deal(1) 
             
     def check_winner(self):
         user_total = self.calculate_total(self.user_hand)
@@ -331,10 +342,10 @@ class BlackJack():
         self._miko_hand = []
 
         self._user_hand = self.card_pack.deal(2)
-        self._miko_hand = self.card_pack.deal()
+        self._miko_hand = self.card_pack.deal(1)
 
     def get_new_card(self, hand):
-        new_card = self.card_pack.deal()
+        new_card = self.card_pack.deal(1)
         hand.extend(new_card)
         return hand
 

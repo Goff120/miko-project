@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 
 from miko_speak import  MikoResponses
+from guild_id import TARGET_GUILD
 
 #chart order
 #deaths
@@ -48,7 +49,7 @@ class MyClient(commands.Bot):
 
     async def setup_hook(self):
         try:
-            guild = discord.Object(id=1362738574486929469)
+            guild = TARGET_GUILD  # Use the integer guild ID directly
             self.tree.clear_commands(guild=guild)
             
             await self.load_extension("silly")
@@ -358,7 +359,7 @@ load_dotenv()
 player_ids = [int(os.getenv(f"PLAYER{i}_ID")) for i in range(1, 8)]
 
 client = MyClient(command_prefix='!', intents=intent, player_ids=player_ids)
-guild = discord.Object(id=1362738574486929469)
+guild = TARGET_GUILD
 
 api_key = os.getenv("OPENAI_API_KEY")
 ai_client = openai.OpenAI(api_key=api_key)
