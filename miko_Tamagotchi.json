@@ -1,44 +1,44 @@
 {
     "fullness": 25,
     "last_fed": "2025-06-23T22:03:38.354129",
-    "mood_points": 7,
-    "last_played": "2025-07-04T15:53:44.152553",
+    "mood_points": 10,
+    "last_played": "2025-07-17T11:03:22.307019",
     "items": [
         "staw hat",
         "flamethrower",
         "pink strap"
     ],
     "deaths": [
-        0,
+        2,
         0,
         1,
         0,
         0
     ],
     "kills": [
-        10,
-        4,
-        4,
-        4,
-        3
+        2,
+        0,
+        2,
+        3,
+        0
     ],
     "luckys": [
+        2,
+        2,
         0,
-        0,
-        0,
-        1,
+        5,
         1
     ],
     "unluckys": [
         1,
         1,
         0,
-        2,
-        2
+        4,
+        3
     ],
     "time": [
-        0,
-        0,
-        0
+        18,
+        2,
+        2
     ]
 }

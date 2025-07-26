@@ -106,8 +106,8 @@ class MikoResponses():
             "/give_miko then teh item you want to give.",
 
         
-            "Gamble":
-            "You can currently play roulette using the `/roulette` command.\n"\
+            "Roulette":
+            "using the `/roulette` command.\n"\
             "Place bets using the format gold.bet_type.\n"\
             "Available types include: \nred, black, even, odd, low, high, 1st12, 2nd12,3rd12\n"\
             "You can also bet on single or multiple numbers.\n"\
@@ -115,6 +115,19 @@ class MikoResponses():
             "To see what's currently popular on the table, use `/look_see`.\n\n"\
             "Note: The GIFs are currently not working well.\n"\
             "Miko uses the Eurpean wheel so no 00",
+
+            "Blackjack":
+            "`/blackjack` command just needs the input of the gold you want to put in\n"\
+            "at the start you can see mikos first card and both yours\n"\
+            "hit and draw a new card\n"\
+            "stand and miko will take over\n"\
+            "double draws a card doubles your bet past that can pass 500 and ends your drawing\n"\
+            "miko will stop drawing cards when he at leasts gets to 17",
+
+            "Gambling":
+            "`/ranks` lets you see the top 10 best gamblers (not the loser)\n"\
+            "`/my_self` you can see how much you lose and win and games played\n"\
+            "finally we can see how mcuh of a loser you are",
 
             
             "Chat":
