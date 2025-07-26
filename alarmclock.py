@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 import os
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
 
 class Alarm():
 
@@ -16,11 +17,6 @@ class Alarm():
         self._hour = hour
         self._spot = spot
         self.score = self.find_score()
-        self.tag = tag
-
-    @property
-    def active(self):
-        return self._active
 
     @property
     def mins (self):
@@ -36,9 +32,6 @@ class Alarm():
             self._hour = new
             self.find_score()
 
-    @active.setter
-    def active(self,new):
-        self._active = new
 
     @mins.setter
     def mins (self,new):
@@ -79,6 +72,8 @@ class SetOfAlarms():
 
     
     alarm_list = []
+    scheduler = AsyncIOScheduler()
+    scheduler.start()
 
     client_id = os.getenv("client_id")
     client_secret = os.getenv("client_secret")
@@ -93,6 +88,36 @@ class SetOfAlarms():
     def new_alarm(self,tag, hours =0 , mins =0):
         alarm = Alarm(self.spot,tag, hours, mins)
         self.insert_sorted(alarm)
+
+    async def add_alarm(self, hour, minute, tag="custom"):
+        new_alarm = Alarm(hour, minute, tag)
+        self.insert_sorted(new_alarm)
+
+        job_id = f"alarm_{hour}_{minute}_{tag}"
+        # Add the job to the running scheduler
+        self.scheduler.add_job(
+            new_alarm.is_time,
+            trigger=CronTrigger(hour=hour, minute=minute),
+            args=[new_alarm],
+            id=job_id,
+            name=f"Alarm {hour}:{minute} ({tag})"
+        )
+
+    def deactivate_alarm(self, hours, mins, tag):
+        job_id = f"alarm_{hours}_{mins}_{tag}"
+        self.scheduler.remove_job(job_id)
+        self.alarm_list.remove(self.find_alarm(hours, mins))
+
+    def deactivate_group(self, tag):
+        for job in self.scheduler.get_jobs():
+            if tag in job.id:
+                self.scheduler.remove_job(job.id)
+                self.delete_group(tag)
+
+    def delete_group(self, tag_name):
+        for alarm in self.alarms:
+            if alarm.group == tag_name:
+                self.alarm_list.remove(alarm)
 
     def insert_sorted(self,new_alarm):
         for i in range(len(self.alarm_list)):
@@ -123,18 +148,11 @@ class SetOfAlarms():
         print("that alarm does not exist")
         return None
     
-    def deactivate_group(self, group_name):
-        for alarm in self.alarms:
-            if alarm.group == group_name:
-                alarm.active = False
 
-    def activate_group(self, group_name):
-        for alarm in self.alarms:
-            if alarm.group == group_name:
-                alarm.active = True
+                
 
-    #set a time you must wake up and get multable trys to wake up
-    def must_wake_up(self, hours, mins,quantity = 5):
+    #set a time you must wake up and get multable trys to get up
+    def must_get_up(self, hours, mins,quantity = 5):
         MINUTE_INTERVAL = 5
         MAX_MINUTE = 55
         for _ in range (quantity):
@@ -146,16 +164,9 @@ class SetOfAlarms():
             else:
                 mins -= MINUTE_INTERVAL
 
-    async def do_alarms(self):
-        scheduler = BlockingScheduler()
+    
 
-        # scheduler.add_job(alarm_action, 'cron', hour=7, minute=30)
 
-        #scheduler.start()
-        for x in range (len(self.alarm_list)):
-            hour = self.alarm_list[x].hour
-            mins = self.alarm_list[x].mis
-            await scheduler.daily(datetime.time(hour=hour, minute=mins), some_action)
 
 
 
