@@ -44,7 +44,7 @@ class AdminCog(commands.Cog):
             )
 
 
-    @app_commands.guilds(TARGET_GUILD)
+
     @app_commands.command(name="help", description="ask for help only one thing? use: Party stats, Time, Fix, Tamagotchi, Gamble, Chat")
     async def help_command(self, interaction: Interaction, printer:str = None):
         
