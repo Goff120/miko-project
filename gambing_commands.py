@@ -321,7 +321,7 @@ class GambleCog(commands.Cog):
         self.user_data = SqlData()
         
 
-    @app_commands.guilds(TARGET_GUILD)
+
     @app_commands.command(name="blackjack", description="Play a round of Blackjack with Miko!")
     async def blackjack_command(self, interaction: Interaction, printer: int):
         await interaction.response.defer()
@@ -342,7 +342,7 @@ class GambleCog(commands.Cog):
         except ValueError as problem:
              await interaction.followup.send(problem)
 
-    @app_commands.guilds(TARGET_GUILD)
+
     @app_commands.command(name="roulette", description="Miko thinks you should test your luck (gold.bet_type)")
     async def roulette_command(self, interaction: discord.Interaction, printer: str):
         response = self.roulette.roulette_bet(printer)
@@ -374,7 +374,7 @@ class GambleCog(commands.Cog):
             await interaction.response.send_message(embed=embed)
         self.bot.miko_used()
 
-    @app_commands.guilds(TARGET_GUILD)
+
     @app_commands.command(name="look_see", description="Do you want Miko to give you pure gambling stats")
     async def look_see_command(self, interaction: discord.Interaction):
         embed = discord.Embed(
@@ -385,7 +385,7 @@ class GambleCog(commands.Cog):
         await interaction.response.send_message(embed=embed)
         self.bot.miko_used()
 
-    @app_commands.guilds(TARGET_GUILD)
+
     @app_commands.command(name="ranks", description="who is just that good at gambling")
     async def rank_command(self, interaction: discord.Interaction):
         embed = discord.Embed(
@@ -396,7 +396,7 @@ class GambleCog(commands.Cog):
         await interaction.response.send_message(embed=embed)
         self.bot.miko_used()
 
-    @app_commands.guilds(TARGET_GUILD)
+
     @app_commands.command(name="my_self", description="sometime stats could make you stop")
     async def my_self_command(self, interaction: discord.Interaction):
         embed = discord.Embed(
@@ -416,7 +416,7 @@ class GambleCog(commands.Cog):
 
     #i know i have a shut down but unless i move sqldata into another file this is the best
     #but i am lazy will do later maybe
-    @app_commands.guilds(TARGET_GUILD)
+
     @app_commands.command(name="shutdown2", description="i know i know i am bad")
     async def shutdown2_command(self, interaction: discord.Interaction):
         await interaction.response.send_message("Shutdown sql")
