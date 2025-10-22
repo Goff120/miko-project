@@ -14,14 +14,14 @@ class Alarm:
 
     _active = True
 
-    def __init__(self, spot, job_id, mins=0, hour=0,extra_info= None):
+    def __init__(self, spot, job_id,discription= None, mins=0, hour=0):
         self._mins = mins
         self._hour = hour
         self._spot = spot
         self.score = self.find_score()
         self.job_id = job_id
         self.track_uri = None
-        self.extra_info = extra_info #tts at the start of alarm (to be added)
+        self.discription = discription #tts at the start of alarm (to be added)
 
     # --- Properties ---
     @property
@@ -125,9 +125,9 @@ class SetOfAlarms:
         print("📅 Scheduler started.")
         self.scheduler.start()
 
-    async def add_alarm(self, hour, minute, tag="custom"):
+    async def add_alarm(self, hour, minute,discription = None, tag="custom"):
         job_id = f"alarm_{hour}_{minute}_{tag}"
-        new_alarm = Alarm(self.spot, job_id, mins=minute, hour=hour)
+        new_alarm = Alarm(self.spot, job_id, discription, mins=minute, hour=hour)
         self.insert_sorted(new_alarm)
 
         self.scheduler.add_job(
@@ -184,13 +184,13 @@ class SetOfAlarms:
         print("⚠️ That alarm does not exist.")
         return None
 
-    async def multi_alarm(self, tag, hours, mins, quantity=5):
+    async def multi_alarm(self, tag, hours, mins,discription, quantity=5):
         """Set multiple alarms every 5 mins before the target time."""
         MINUTE_INTERVAL = 5
         MAX_MINUTE = 55
 
         for _ in range(quantity):
-            await self.add_alarm(hour=hours, minute=mins, tag=tag)
+            await self.add_alarm(hour=hours, minute=mins,discription = discription, tag=tag)
 
             if mins == 0:
                 hours -= 1
