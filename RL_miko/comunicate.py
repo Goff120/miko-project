@@ -12,7 +12,6 @@ class Comunicate:
         self.recon.energy_threshold = 100   # sensitivity (lower = more sensitive to quiet voices)
         self.recon.pause_threshold = 0.6    #how long of nothing to send
         
-        self.last_command = ""
         self.keywords = ["miko", "meeko", "mico", "micoh","mac home","nico","mako","nicko",
 "mecco","mecc","mecca","niko","meko","micko","mick"] 
 
@@ -68,13 +67,13 @@ class Comunicate:
         print("end")
         text = self.translator()
         
-        if text != self.last_command:
-            if "hello" in text:
-                print("hi bat boss")
-            elif "stop" in text:
-                print("by by")
-
-        self.last_command = text  
+        
+        if "hello" in text:
+            print("hi bat boss")
+        elif "stop" in text:
+            print("by by")
+ 
+ 
         print("i hear you")
 
 
