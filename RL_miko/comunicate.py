@@ -12,8 +12,19 @@ class Comunicate:
         self.recon.energy_threshold = 100   # sensitivity (lower = more sensitive to quiet voices)
         self.recon.pause_threshold = 0.6    #how long of nothing to send
         
+        self.comands = self.load_comunication()
+        
         self.keywords = ["miko", "meeko", "mico", "micoh","mac home","nico","mako","nicko",
 "mecco","mecc","mecca","niko","meko","micko","mick"] 
+        
+        handler = CommandHandler()
+        self.commands = {
+            "greeting": handler.greeting_command,
+            "goodbye": handler.goodbye_command,
+            "thanks": handler.thanks_command,
+            "noanswer": handler.noanswer_command,
+            
+        }
 
         threading.Thread(target=self.run_miko).start()
 
@@ -68,14 +79,32 @@ class Comunicate:
         text = self.translator()
         
         
-        if "hello" in text:
-            print("hi bat boss")
-        elif "stop" in text:
-            print("by by")
- 
+        for tag in self.comands:
+            for patten in tag["patten"]:
+                if text in patten:
+                    action = self.commands(tag)
+                    if action():
+                        action()
+                    else:
+                        print("i cant do that")
+                        #replace with proper stuff
  
         print("i hear you")
+    
 
+class CommandHandler():
+    #test add the list of possible replys and do something
+    def greeting_command(self):
+        print("hello")
+    
+    def goodbye_command(self):
+        print("goodbye")
+        
+    def thanks_command(self):
+        print("thanks")
+        
+    def noanswer_command(self):
+        print("noanswer")
 
 if __name__ == "__main__":
     #test_Roulette()
