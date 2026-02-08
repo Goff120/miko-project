@@ -93,6 +93,7 @@ class CommandHandler():
     
     def miko_comment(self,text):
         self.speaker.say(choice(text))
+        self.speaker.runAndWait()
     
     #test add the list of possible replys and do something
     def greeting_command(self):
