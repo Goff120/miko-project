@@ -2,20 +2,22 @@ import threading
 import speech_recognition as speech
 import pyttsx3 as tts
 import json
+import os
+from random import choice
 
 class Comunicate:
     
     def __init__(self):
-        self.data_file = "comunication.json"
         self.recon = speech.Recognizer()
-        self.speaker = tts.init()
-        self.recon.energy_threshold = 100   # sensitivity (lower = more sensitive to quiet voices)
+        self.recon.energy_threshold = 60   # sensitivity (lower = more sensitive to quiet voices)
         self.recon.pause_threshold = 0.6    #how long of nothing to send
         
+        self.data_file = os.path.join(os.path.dirname(__file__), "comunication.json")
         self.comands = self.load_comunication()
         
-        self.keywords = ["miko", "meeko", "mico", "micoh","mac home","nico","mako","nicko",
-"mecco","mecc","mecca","niko","meko","micko","mick"] 
+        self.keywords = [
+            "miko", "meeko", "mico", "micoh","mac home","nico","mako","nicko",
+            "mecco","mecc","mecca","niko","meko","micko","mick"] 
         
         handler = CommandHandler()
         self.commands = {
@@ -34,7 +36,7 @@ class Comunicate:
             try:
                 return json.load(f)
             except json.JSONDecodeError:
-                print("redoing homework with JSON 🙄")
+                print("rereading JSON 🙄")
                 return self.load_comunication()
 
     def save_comunication(self, data):
@@ -74,25 +76,24 @@ class Comunicate:
     def activate(self):
         
         print("i hear you")
-
-        print("end")
         text = self.translator()
         
-        
-        for tag in self.comands:
-            for patten in tag["patten"]:
+        for tag in self.comands.values():
+            for patten in tag["patterns"]:
                 if text in patten:
-                    action = self.commands(tag)
-                    if action():
-                        action()
-                    else:
-                        print("i cant do that")
-                        #replace with proper stuff
- 
-        print("i hear you")
+                    action = self.commands[tag["tag"]]
+                    handler.miko_comment(tag["responses"])
+                    action()
+
     
 
 class CommandHandler():
+
+    speaker = tts.init()
+    
+    def miko_comment(self,text):
+        self.speaker.say(choice(text))
+    
     #test add the list of possible replys and do something
     def greeting_command(self):
         print("hello")
@@ -107,7 +108,6 @@ class CommandHandler():
         print("noanswer")
 
 if __name__ == "__main__":
-    #test_Roulette()
     Comunicate()
     
 """
