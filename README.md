@@ -37,53 +37,34 @@ asyncio
 psycopg2
 openai
 python-dotenv
+```
 
+**For RL Miko (Python 3.12.2):**
+```bash
+sudo apt update && sudo apt install -y build-essential libssl-dev zlib1g-dev \
+    libncurses5-dev libncursesw5-dev libreadline-dev libsqlite3-dev \
+    libgdbm-dev libdb5.3-dev libbz2-dev libexpat1-dev liblzma-dev tk-dev libffi-dev uuid-dev wget
 
-but if you want to use RL miko (when made)
-i updated the PIs python to 3.12.2. 
-i would do this to upgarde
+wget https://www.python.org/ftp/python/3.12.2/Python-3.12.2.tgz
+tar -xf Python-3.12.2.tgz && cd Python-3.12.2
+./configure --enable-optimizations && make -j4 && sudo make altinstall
+```
 
-sudo apt update
-sudo apt install -y build-essential libssl-dev zlib1g-dev \
-  libncurses5-dev libncursesw5-dev libreadline-dev libsqlite3-dev \
-  libgdbm-dev libdb5.3-dev libbz2-dev libexpat1-dev liblzma-dev \
-  tk-dev libffi-dev uuid-dev wget
-Download Python 3.12:
-all in command prompt on the PI:
-  wget https://www.python.org/ftp/python/3.12.2/Python-3.12.2.tgz
-  tar -xf Python-3.12.2.tgz
-  cd Python-3.12.2
-  
-  ./configure --enable-optimizations
-  make -j4
-  
-  sudo make altinstall
-  
-  it is slow but only thing that worked for me with min effort 
-  this creates a safe space aswell for libarys to install
+## Environment Variables
 
-## env
-things you would want in env
-OPENAI_API_KEY= make an openai api account and copy the key given
-DISCORD_TOKEN= make discord bot profile in discord developer and copy key
-
-spotify
-get spotify premium and go on developer to collect this 
-client_id= 
-client_secret=
-
-on discord activate developer mode in settings of your account and copy users id on right click bottom
-PLAYERX_ID= 924228448170430524 (mine for example)
-X is just the number towards how many you want as you could as many as you want 
-
-this is to use postgreSQL when using pgAdmin you can find this info
+```
+OPENAI_API_KEY=<your-openai-api-key>
+DISCORD_TOKEN=<your-discord-bot-token>
+SPOTIFY_CLIENT_ID=<your-spotify-client-id>
+SPOTIFY_CLIENT_SECRET=<your-spotify-client-secret>
+PLAYER1_ID=<discord-user-id>
+PLAYER2_ID=<discord-user-id>
 DB_HOST=localhost
 DB_NAME=postgres
 DB_USER=postgres
-DB_PASS= "make your own"
+DB_PASS=<your-password>
+```
 
+## Contact
 
-
-## contcat
-for what ever reason you would want to interact with my bad ideas 
-email: geoffreysmithuk@icloud.com
+geoffreysmithuk@icloud.com

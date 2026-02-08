@@ -1,0 +1,23 @@
+{
+    "greeting":{
+        "tag": "greeting",
+        "patterns": ["hi", "hello", "how are you", "is anyone there", "good day"],
+        "responses": ["Hello", "Hi there", "Greetings", "How can I assist you"]
+        },
+    "goodbye" :{
+        "tag": "goodbye",
+        "patterns": ["bye", "see you later", "goodbye"],
+        "responses": ["Goodbye", "See you later", "Have a great day"]
+        },
+    "thanks" :{
+        "tag": "thanks",
+        "patterns": ["thanks", "thank you", "that's helpful"],
+        "responses": ["You're welcome", "No problem", "Glad I could help"]
+        },
+    "noanswer" :{
+        "tag": "noanswer",
+        "patterns": [],
+        "responses": ["Sorry, I can't understand you", "Please give me more information", "Not sure I understand"]
+        }
+
+}
