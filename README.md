@@ -20,9 +20,20 @@ what is there tho is an alarm you can set for of the week able to make a full mo
 
 insead of the soul sucking beeps miko would get your favs or a random song from spotify to play 
 
-future with the test for tts and stt
+future with the test for TTS and STT
 the alarm would use stt to stop the alarm fav the song that he is playing and a few other things 
 for tts the alarm can hold infomation that it tells the user before and after the song so you can include normal very day reminders (god i need this)
+
+##even further future and TTS and STT working
+when out of range from the pi it will stop using TTS and STT and use discord to DM the user or take input to increase ease of use 
+hence why this is in the same project when they are very diffrent both should work without this tho
+
+have similar commands like alarm for things such as playing songs normaly keeping track of tasks with estimated time urgancy and other useful info
+to track food intake for the day. to keep user updated in news when asked 
+really anything that i would like to keep informed in one place
+
+TTS = test to speach
+STT = speach to text
 
 ## the PIs add ons
 things i use to work with my pi
