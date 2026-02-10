@@ -1,9 +1,8 @@
 import threading
 import speech_recognition as speech
-import pyttsx3 as tts
 import json
 import os
-from random import choice
+from Rl_commands import CommandHandler
 
 class Comunicate:
     
@@ -81,32 +80,13 @@ class Comunicate:
         for tag in self.comands.values():
             for patten in tag["patterns"]:
                 if text in patten:
-                    action = self.commands[tag["tag"]]
+                    action = self.commands[tag.keys()]
                     self.handler.miko_comment(tag["responses"])
                     action()
 
     
 
-class CommandHandler():
 
-    speaker = tts.init()
-    
-    def miko_comment(self,text):
-        self.speaker.say(choice(text))
-        self.speaker.runAndWait()
-    
-    #test add the list of possible replys and do something
-    def greeting_command(self):
-        print("hello")
-    
-    def goodbye_command(self):
-        print("goodbye")
-        
-    def thanks_command(self):
-        print("thanks")
-        
-    def noanswer_command(self):
-        print("noanswer")
 
 if __name__ == "__main__":
     Comunicate()
