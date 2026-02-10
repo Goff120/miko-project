@@ -19,12 +19,12 @@ class Comunicate:
             "miko", "meeko", "mico", "micoh","mac home","nico","mako","nicko",
             "mecco","mecc","mecca","niko","meko","micko","mick"] 
         
-        handler = CommandHandler()
+        self.handler = CommandHandler()
         self.commands = {
-            "greeting": handler.greeting_command,
-            "goodbye": handler.goodbye_command,
-            "thanks": handler.thanks_command,
-            "noanswer": handler.noanswer_command,
+            "greeting": self.handler.greeting_command,
+            "goodbye": self.handler.goodbye_command,
+            "thanks": self.handler.thanks_command,
+            "noanswer": self.handler.noanswer_command,
             
         }
 
@@ -82,7 +82,7 @@ class Comunicate:
             for patten in tag["patterns"]:
                 if text in patten:
                     action = self.commands[tag["tag"]]
-                    handler.miko_comment(tag["responses"])
+                    self.handler.miko_comment(tag["responses"])
                     action()
 
     
