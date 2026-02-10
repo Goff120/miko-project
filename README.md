@@ -1,39 +1,37 @@
 # miko-project
 
-## Discord Bot
+## discord bot
+this version of miko is useable and in a state i am currently happy with using
+miko is a raspberry PI hosted bot for some dnd fun and is mainly used to track infomation about each PC such as deaths kills nat 20s and nat 1s. 
 
-This version of miko is stable and ready for use. It's a Raspberry Pi-hosted Discord bot designed for D&D campaigns to track PC information including deaths, kills, nat 20s, and nat 1s.
+miko also hads features to make an npc that is not controled by the DM but AI and pre made interations.
 
-**Features:**
-- AI-controlled NPCs with pre-made interactions
-- Blackjack and roulette games with loss tracking
-- Use `/help` for command documentation
+miko had some dumb fun that was requested i make of blackjack and roulette that scores the individual on how badly they have lost 
 
-> **Note:** Currently offline as the campaign has ended. Can be deployed if the code runs on the Pi.
+for more info on how to use the command you can do /help when he is running on the server 
+(ps miko can just be added and should work if the code is running on my PI)
+(currently not running as the campain i was playing ended and i have not joined the current one)
 
-## RL Miko
+## RL miko
+it is not functional as i had to stop due to work and uni life :( 
+currently in testing of how i would make tts and stt 
 
-Currently in development with text-to-speech (TTS) and speech-to-text (STT) testing.
+what is there tho is an alarm you can set for of the week able to make a full months set of alarms for individual days 
 
-**Current Features:**
-- Configurable weekly alarms with month-long scheduling
-- Plays Spotify favorites or random songs instead of beeps
-- Supports custom daily reminders
+insead of the soul sucking beeps miko would get your favs or a random song from spotify to play 
 
-**Planned Features:**
-- STT to stop alarms, favorite songs, and more
-- TTS to deliver reminders before/after playback
+future with the test for tts and stt
+the alarm would use stt to stop the alarm fav the song that he is playing and a few other things 
+for tts the alarm can hold infomation that it tells the user before and after the song so you can include normal very day reminders (god i need this)
 
-## Pi Add-ons
+## the PIs add ons
+things i use to work with my pi
+for aduio i would use any speaker with an audio jack 
+the microphone i would use anything that is cable but i use ReSpeaker Mic Array v2.0 as it has fun light and mics to tell where i am in the room 
 
-**Audio & Microphone:**
-- Any speaker with audio jack
-- ReSpeaker Mic Array v2.0 (recommended for directional audio)
-
-### Software
-
-**For Discord Bot:**
-```
+### software 
+if you want just discord the python3 pre built should just work well  
+the libarys used and install:
 discord.py
 asyncio
 psycopg2
