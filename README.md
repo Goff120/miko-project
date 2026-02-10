@@ -14,13 +14,18 @@ for more info on how to use the command you can do /help when he is running on t
 
 ## RL miko
 it is not functional as i had to stop due to work and uni life :( 
-currently in testing of how i would make tts and stt 
+currently in testing of how i would make tts 
 
 what is there tho is an alarm you can set for of the week able to make a full months set of alarms for individual days 
-
 insead of the soul sucking beeps miko would get your favs or a random song from spotify to play 
 
-future with the test for TTS and STT
+stt is now mustly implamented.
+stt now records and translates your voice into text 
+miko uses a wake word before taking commands and reducing what it can hear and store 
+if an unfamiliar command is given chatgpt can attempt to relate it to a command and save it with the others
+this still needs to be saved into the json and call the command after the AI 
+
+future with the TTS and STT
 the alarm would use stt to stop the alarm fav the song that he is playing and a few other things 
 for tts the alarm can hold infomation that it tells the user before and after the song so you can include normal very day reminders (god i need this)
 
