@@ -35,7 +35,7 @@ really anything that i would like to keep informed in one place
 TTS = test to speach
 STT = speach to text
 
-## the PIs add ons
+## the PI's add ons
 things i use to work with my pi
 for aduio i would use any speaker with an audio jack 
 the microphone i would use anything that is cable but i use ReSpeaker Mic Array v2.0 as it has fun light and mics to tell where i am in the room 
