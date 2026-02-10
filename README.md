@@ -24,7 +24,7 @@ future with the test for TTS and STT
 the alarm would use stt to stop the alarm fav the song that he is playing and a few other things 
 for tts the alarm can hold infomation that it tells the user before and after the song so you can include normal very day reminders (god i need this)
 
-##even further future and TTS and STT working
+## even further future and TTS and STT working
 when out of range from the pi it will stop using TTS and STT and use discord to DM the user or take input to increase ease of use 
 hence why this is in the same project when they are very diffrent both should work without this tho
 
