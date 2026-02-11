@@ -4,6 +4,8 @@ import pyttsx3 as tts
 import json
 import os
 from random import choice
+import openai
+from dotenv import load_dotenv
 
 class Comunicate:
     
@@ -25,8 +27,11 @@ class Comunicate:
             "goodbye": self.handler.goodbye_command,
             "thanks": self.handler.thanks_command,
             "noanswer": self.handler.noanswer_command,
-            
         }
+        
+        load_dotenv()
+        api_key = os.getenv("OPENAI_API_KEY")
+        self.ai_client = openai.OpenAI(api_key=api_key)
 
         threading.Thread(target=self.run_miko).start()
 
@@ -84,6 +89,32 @@ class Comunicate:
                     action = self.commands[tag["tag"]]
                     self.handler.miko_comment(tag["responses"])
                     action()
+        self.ai_text_check()
+                    
+    async def ai_text_check(self, text):
+        
+        ask = [
+            { 
+                "role": "developer",
+                "content": (
+                    "based on user text select from this list "
+                    + str(list(self.commands.keys())) +
+                    " If nothing matches, say 'unsupported' "
+                    "No explanations "
+                    "One value only"
+                )
+            },
+            {
+                "role": "user",
+                "content": text 
+            },
+        ]
+        
+        response = await self.ai_client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            input=ask,
+            max_tokens=200,
+        )
 
     
 
