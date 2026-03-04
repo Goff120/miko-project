@@ -7,12 +7,13 @@ from random import choice
 import openai
 from dotenv import load_dotenv
 import re
+from queue import Queue
 
 class Comunicate:
     
     def __init__(self):
         self.recon = speech.Recognizer()
-        self.recon.energy_threshold = 60   # sensitivity (lower = more sensitive to quiet voices)
+        self.recon.energy_threshold = 0   # sensitivity (lower = more sensitive to quiet voices)
         self.recon.pause_threshold = 0.6    #how long of nothing to send
         
         self.data_file = os.path.join(os.path.dirname(__file__), "comunication.json")
@@ -20,7 +21,7 @@ class Comunicate:
         
         self.keywords = [
             "miko", "meeko", "mico", "micoh","mac home","nico","mako","nicko",
-            "mecco","mecc","mecca","niko","meko","micko","mick"] 
+            "mecco","mecc","mecca","niko","meko","micko","mick",] 
         
         self.handler = CommandHandler()
         self.link = {
@@ -101,10 +102,10 @@ class Comunicate:
         self.try_ai(text)
         
     def try_ai (self,text):
-        tag = self.ai_text_check(text)
+        tag = self.ai_text_check(text).lower()
         if tag != "unsupported":
             action = self.link[tag]
-            self.comands[tag]["responses"]
+            self.handler.miko_comment(self.comands[tag]["responses"])
             action()
         
             self.add_command_phrase(tag, text)
@@ -134,7 +135,7 @@ class Comunicate:
             model="gpt-4o-mini",
             messages=ask,
             max_tokens=10,
-        ).lower()
+        )
         return response.choices[0].message.content.strip()
 
     def add_command_phrase(self, tag_name, new_phrase):
@@ -150,12 +151,20 @@ class Comunicate:
     
 
 class CommandHandler():
-
-    speaker = tts.init()
     
-    def miko_comment(self,text):
-        self.speaker.say(choice(text))
-        self.speaker.runAndWait()
+    def __init__(self):
+        self.speech_queue = Queue()
+        self.speaker = tts.init()
+        threading.Thread(target=self._process_speech_queue, daemon=True).start()
+    
+    def miko_comment(self, text):
+        self.speech_queue.put(text)
+    
+    def _process_speech_queue(self):
+        while True:
+            text = self.speech_queue.get()
+            self.speaker.say(choice(text))
+            self.speaker.runAndWait()
     
     #test add the list of possible replys and do something
     def greeting_command(self):
