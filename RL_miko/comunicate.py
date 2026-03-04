@@ -149,18 +149,6 @@ class Comunicate:
 if __name__ == "__main__":
     Comunicate()
     
-"""
-if text == "end":
-                            self.speaker.say("By boss")
-                            self.speaker.runAndWait()
-                            self.speaker.stop()
-                            sys.exit()
-                        else:
-                            if text is not None:
-                                response = self.assis_miko.process_input(text)
-                                if response is not None:
-                                    self.speaker.say(response)
-                                    self.speaker.runAndWait()
-"""
+
         
         
