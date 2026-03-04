@@ -14,17 +14,33 @@ for more info on how to use the command you can do /help when he is running on t
 
 ## RL miko
 it is not functional as i had to stop due to work and uni life :( 
-currently in testing of how i would make tts and stt 
+currently in testing of how i would make tts 
 
 what is there tho is an alarm you can set for of the week able to make a full months set of alarms for individual days 
-
 insead of the soul sucking beeps miko would get your favs or a random song from spotify to play 
 
-future with the test for tts and stt
+stt is now mustly implamented.
+stt now records and translates your voice into text 
+miko uses a wake word before taking commands and reducing what it can hear and store 
+if an unfamiliar command is given chatgpt can attempt to relate it to a command and save it with the others
+this still needs to be saved into the json and call the command after the AI 
+
+future with the TTS and STT
 the alarm would use stt to stop the alarm fav the song that he is playing and a few other things 
 for tts the alarm can hold infomation that it tells the user before and after the song so you can include normal very day reminders (god i need this)
 
-## the PIs add ons
+## even further future and TTS, STT working
+when out of range from the pi it will stop using TTS and STT and use discord to DM the user or take input to increase ease of use 
+hence why this is in the same project when they are very diffrent both should work without this tho
+
+have similar commands like alarm for things such as playing songs normaly keeping track of tasks with estimated time urgancy and other useful info
+to track food intake for the day. to keep user updated in news when asked 
+really anything that i would like to keep informed in one place
+
+TTS = test to speach
+STT = speach to text
+
+## the PI's add ons
 things i use to work with my pi
 for aduio i would use any speaker with an audio jack 
 the microphone i would use anything that is cable but i use ReSpeaker Mic Array v2.0 as it has fun light and mics to tell where i am in the room 
