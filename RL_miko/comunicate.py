@@ -1,13 +1,11 @@
 import threading
 import speech_recognition as speech
-import pyttsx3 as tts
 import json
 import os
-from random import choice
 import openai
 from dotenv import load_dotenv
 import re
-from queue import Queue
+from command_handler import CommandHandler
 
 class Comunicate:
     
@@ -147,37 +145,6 @@ class Comunicate:
             if new_phrase not in patterns:
                 patterns.append(new_phrase)
                 self.save_comunication(self.comands)
-
-    
-
-class CommandHandler():
-    
-    def __init__(self):
-        self.speech_queue = Queue()
-        self.speaker = tts.init()
-        threading.Thread(target=self._process_speech_queue, daemon=True).start()
-    
-    def miko_comment(self, text):
-        self.speech_queue.put(text)
-    
-    def _process_speech_queue(self):
-        while True:
-            text = self.speech_queue.get()
-            self.speaker.say(choice(text))
-            self.speaker.runAndWait()
-    
-    #test add the list of possible replys and do something
-    def greeting_command(self):
-        print("hello")
-    
-    def goodbye_command(self):
-        print("goodbye")
-        
-    def thanks_command(self):
-        print("thanks")
-        
-    def noanswer_command(self):
-        print("noanswer")
 
 if __name__ == "__main__":
     Comunicate()
