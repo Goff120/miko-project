@@ -1,19 +1,51 @@
 {
-    "greeting":{
-        "patterns": ["hi", "hello", "how are you", "is anyone there", "good day"],
-        "responses": ["Hello", "Hi there", "Greetings", "How can I assist you"]
-        },
-    "goodbye" :{
-        "patterns": ["bye", "see you later", "goodbye"],
-        "responses": ["Goodbye", "See you later", "Have a great day"]
-        },
-    "thanks" :{
-        "patterns": ["thanks", "thank you", "that's helpful"],
-        "responses": ["You're welcome", "No problem", "Glad I could help"]
-        },
-    "noanswer" :{
+    "greeting": {
+        "patterns": [
+            "hi",
+            "hello",
+            "how are you",
+            "is anyone there",
+            "good day",
+            "what's up my homeboy"
+        ],
+        "responses": [
+            "Hello",
+            "Hi there",
+            "Greetings",
+            "How can I assist you"
+        ]
+    },
+    "goodbye": {
+        "patterns": [
+            "bye",
+            "see you later",
+            "goodbye",
+            "i gotta leave you bud"
+        ],
+        "responses": [
+            "Goodbye",
+            "See you later",
+            "Have a great day"
+        ]
+    },
+    "thanks": {
+        "patterns": [
+            "thanks",
+            "thank you",
+            "that's helpful"
+        ],
+        "responses": [
+            "You're welcome",
+            "No problem",
+            "Glad I could help"
+        ]
+    },
+    "noanswer": {
         "patterns": [],
-        "responses": ["Sorry, I can't understand you", "Please give me more information", "Not sure I understand"]
-        }
-
+        "responses": [
+            "Sorry, I can't understand you",
+            "Please give me more information",
+            "Not sure I understand"
+        ]
+    }
 }
